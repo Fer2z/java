@@ -2,6 +2,7 @@ package com.chess.engine.pieces;
 
 import com.chess.engine.Alliance;
 import com.chess.engine.board.Board;
+import com.chess.engine.board.BoardUtils;
 import com.chess.engine.board.Move;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,16 +20,24 @@ public class Knight extends Piece { //(constructor) الخاص بالفارس.
     }
 
     @Override
-    public List<Move> calculatelegalMoves(Board board) { //حساب الحركات المسموحة
-        
+    public List<Move> calculatelegalMoves(Board board) { //حساب الحركات المسموحة       
         int candidateDestinationCoordinate;
        final List<Move> legalMoves = new ArrayList<>(); //متغير لتحديد المواقع
-        for(final int currectCandidate : CANDIDATE_MOVE_COORDINATES ){  // التكرار عبر التحركات الممكنة
-            
-            candidateDestinationCoordinate = this.piecePosition + currectCandidate ;
-            
-            if(true/*isValidTileCoordinate */){ //هذا شرط للتحقق مما إذا كان الموقع الجديد صالح .
-            
+       
+       
+       
+        for(final int currentCandidateOffset: CANDIDATE_MOVE_COORDINATES) { // التكرار عبر التحركات الممكنة       
+           final int candidateDestinationCoordinate = this.piecePosition + currentCandidateOffset;     
+            if(BoardUtils.isValidTileCoordinate (candidateDestinationCoordinate)) {//هذا شرط للتحقق مما إذا كان الموقع الجديد صالح .   
+            if(isFirstColumnExclusion(this.piecePosition, currentCandidateOffset) ||
+            isSecondColumnExclusion(this.piecePosition, currentCandidateOffset) ||
+            isSeventhColumnExclusion(this.piecePosition, currentCandidateOffset) ||
+            isEighthColumnExclusion(this.piecePosition, currentCandidateOffset)) {
+            continue;
+}
+
+
+                
                final Tile candidateDestinationTile = board.getTile(candidateDestinationCoordinate); //إذا كانت الخانة غير مشغولة (!candidateDestinationTile.isTileOccupied())، يتم اعتبار الحركة مسموحه
             
                if (!candidateDestinationTile.isTileOccupied()){
@@ -38,7 +47,7 @@ public class Knight extends Piece { //(constructor) الخاص بالفارس.
                  } else{
                      final Alliance pieceAtDestination = candidateDestinationTile.getPiece();
                    final Alliance PieceAlliance = pieceAtDestination.getPieceAlliance();
-                    if (this.pieceAlliance != pieceAllegiance){
+                    if (this.pieceAlliance != pieceAlliance){
                     legalMoves.add(new Move());
                     
                     /*
@@ -57,5 +66,28 @@ public class Knight extends Piece { //(constructor) الخاص بالفارس.
         } 
      return Immutablelist.copyOf(legalMoves);
     }
+
+        private static boolean isValidTileCoordinate(int coordinate) {
+               return coordinate >= 0 && coordinate < 64;
+           }
     
+ private static boolean isFirstColumnExclusion(final int currentPosition, final int candidateOffset) {
+    return BoardUtils.FIRST_COLUMN[currentPosition] &&
+           (candidateOffset == -17 || candidateOffset == -10 || candidateOffset == 6 || candidateOffset == 15);
 }
+ private static boolean isSecondColumnExclusion(final int currentPosition, final int candidateOffset) {
+    return BoardUtils.SECOND_COLUMN[currentPosition] && (candidateOffset == -10 || candidateOffset == 6);
+}
+private static boolean isSeventhColumnExclusion(final int currentPosition, final int candidateOffset) {
+return BoardUtils.SEVENTH_COLUMN [currentPosition] && (candidateOffset == -6 || candidateOffset == 10);
+}
+private static boolean isEighthColumnExclusion (final int currentPosition, final int candidateOffset) {
+return BoardUtils.EIGHTH_COLUMN [currentPosition] && (candidateOffset == -15 || candidateOffset == -6 ||
+candidateOffset == 10 || candidateOffset == 17);
+}
+    }
+
+
+
+
+
